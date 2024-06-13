@@ -1,13 +1,6 @@
 import * as THREE from "three";
-import { OrbitControls as MapControls } from "three/examples/jsm/Addons.js";
+import { OrbitControls } from "three/examples/jsm/Addons.js";
 import { loadMap, map0_data } from "./map";
-// import { TowerManager } from "./tower";
-// import {
-//   createTowerGui_open,
-//   createTowerGui_close,
-//   infoTowerGui_open,
-//   infoTowerGui_close,
-// } from "./gui.js";
 
 // variables
 let scene,
@@ -39,29 +32,19 @@ function init() {
   const aspect = window.innerWidth / window.innerHeight;
   const frustumSize = 10;
 
-  camera = new THREE.OrthographicCamera(
-    (frustumSize * aspect) / -2,
-    (frustumSize * aspect) / 2,
-    frustumSize / 2,
-    frustumSize / -2,
-    1,
-    1000
-  );
-  camera.position.set(-15, 15, -15);
+  camera = new THREE.PerspectiveCamera(20, aspect, 0.1, 5000);
+  camera.position.set(0, 70, 40);
   scene.add(camera);
 
   // controls
-  controls = new MapControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-  controls.screenSpacePanning = false;
-  controls.minDistance = 2;
-  controls.maxDistance = 20;
-  controls.maxPolarAngle = Math.PI / 2;
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.update();
+  // controls.addEventListener("change", render);
+  controls.enabled = false;
 
   //event
-  // document.addEventListener("pointerdown", onMouseDown, false);
-  // document.addEventListener("pointerup", onMouseUp, false);
+  document.addEventListener("mousedown", onMouseDown);
+  document.addEventListener("mouseup", onMouseUp);
 
   //light
   const ambientLight = new THREE.AmbientLight(0xcccccc, 0.2);
@@ -80,112 +63,61 @@ function init() {
     opacity: 0,
     color: 0xc0392b,
   });
-  const cursor_geometry = new THREE.BoxGeometry(0.5, 4, 0.5); // height 4
+  const cursor_geometry = new THREE.BoxGeometry(1, 4, 1); // height 4
   cursor_cube = new THREE.Mesh(cursor_geometry, cursor_material);
   scene.add(cursor_cube);
-
-  // TOWER MESH
-  // const material = new THREE.MeshLambertMaterial({ color: 0xc0392b });
-  // const tower_geometry = new THREE.BoxGeometry(1, 3, 1);
-  // tower_mesh = new THREE.Mesh(tower_geometry, material);
-
-  // document.getElementById("buttonyes").addEventListener("click", function () {
-  //   event.stopPropagation();
-
-  //   var tmpTower = towerMngr.newTowerMeshToCreate;
-  //   scene.add(tmpTower);
-  //   towerMngr.addTower(tmpTower);
-
-  //   towerMngr.newTowerMeshToCreate = undefined;
-  //   createTowerGui_close();
-  // });
-
-  // document.getElementById("buttonno").addEventListener("click", function () {
-  //   event.stopPropagation();
-  //   towerMngr.newTowerMeshToCreate = undefined;
-  //   createTowerGui_close();
-  // });
-
-  // document
-  //   .getElementById("buttondelete")
-  //   .addEventListener("click", function () {
-  //     event.stopPropagation();
-  //     towerMngr.deleteTower(towerMngr.selectedTower);
-  //     scene.remove(towerMngr.selectedTower.mesh);
-
-  //     infoTowerGui_close();
-  //     towerMngr.selectedTower = undefined;
-  //   });
-
-  // document.getElementById("buttonclose").addEventListener("click", function () {
-  //   event.stopPropagation();
-  //   infoTowerGui_close();
-  // });
 
   //loop
   render();
 }
 
-// function onMouseUp(event) {
-//   cursor_cube.material.emissive.g = 0;
-//   towerMngr.newTowerMeshToCreate = undefined;
-//   towerMngr.selectedTower = undefined;
+function onMouseUp(event) {
+  // mouse.x = (event.clientX / innerWidth) * 2 - 1;
+  // mouse.y = (event.clientX / innerHeight) * 2 + 1;
+  // console.log("mouse up", mouse.x, mouse.y);
+  cursor_cube.material.emissive.g = 0;
+}
 
-//   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-//   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+function onMouseDown(event) {
+  event.preventDefault();
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-//   if (cursorValid) {
-//     var checkTower = towerMngr.getTowerAtPosition(
-//       cursor_cube.position.x,
-//       cursor_cube.position.z
-//     );
+  console.log("mouse down", mouse.x, mouse.y);
 
-//     if (checkTower == null) {
-//       var newtower = tower_mesh.clone();
-//       newtower.position.set(cursor_cube.position.x, 1, cursor_cube.position.z);
-//       towerMngr.newTowerMeshToCreate = newtower;
+  raycaster.setFromCamera(mouse, camera);
 
-//       infoTowerGui_close();
-//       createTowerGui_open();
-//     } else {
-//       towerMngr.selectedTower = checkTower;
-//       createTowerGui_close();
-//       infoTowerGui_open(checkTower.mesh.position.x, checkTower.mesh.position.z);
-//     }
-//   }
-// }
+  console.log({ len: clickableObjs.length, clickableObjs });
+  const intersects = raycaster.intersectObjects(clickableObjs);
+  console.log(intersects.length);
+  if (intersects.length) {
+    const selected_block = intersects[0].object;
+    cursor_cube.position.set(
+      selected_block.position.x,
+      selected_block.position.y + 2,
+      selected_block.position.z
+    );
+    cursor_cube.material.opacity = 0.5;
+    cursor_cube.material.emissive.g = 0.5;
 
-// function onMouseDown(event) {
-//   event.preventDefault();
-//   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-//   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    intersects.forEach((node) => console.log(node.object));
+  } else {
+    cursor_cube.material.opacity = 0;
+  }
+}
 
-//   raycaster.setFromCamera(mouse, camera);
-//   var intersects = raycaster.intersectObjects(clickableObjs);
+window.onresize = function () {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
 
-//   if (intersects.length > 0) {
-//     // If there is a match mouse/block (if the array is not empty)
-//     var SelectedBloc = intersects[0].object; // we choose the first targetable element
-//     cursor_cube.position.set(
-//       SelectedBloc.position.x,
-//       SelectedBloc.position.y,
-//       SelectedBloc.position.z
-//     );
-//     cursor_cube.material.opacity = 0.5;
-//     cursor_cube.material.emissive.g = 0.5;
-
-//     cursorValid = true;
-//   } else {
-//     cursor_cube.material.opacity = 0;
-//     cursorValid = false;
-//   }
-// }
+  renderer.setSize(window.innerWidth, window.innerHeight);
+};
 
 function render() {
   const delta = clock.getDelta();
   const elapsed = clock.elapsedTime;
 
-  controls.update();
+  // controls.update();
   renderer.render(scene, camera);
 
   requestAnimationFrame(render);
