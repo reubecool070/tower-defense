@@ -4,6 +4,12 @@ import { loadMap, map0_data } from "./map";
 // import { createInterSection, loopInterSection } from "./intersection";
 import { TowerManager } from "./tower";
 
+// LIST of TODOS
+// Do not let towers be added in the same place
+// Change tower sprite with multiple as per choice
+// Tower fire system animation
+// Add minions sprite -> animation following path
+
 // variables
 let camera,
   renderer,
@@ -110,7 +116,13 @@ function onMouseDown(event) {
   const intersects = raycaster.intersectObjects(clickableObjs);
   if (intersects.length) {
     const selected_block = intersects[0].object;
-    // const findObj = clickableObjs.find((obj) => obj.id === selected_block.id);
+    // Remove the road from raycasting where the tower is placed.
+    // Do not let towers be added in the same place
+    const findObjIndex = clickableObjs.findIndex(
+      (obj) => obj.id === selected_block.id
+    );
+    clickableObjs.splice(findObjIndex, 1);
+
     const tower = towerMngr.createTower();
     towerMngr.setTowerPosition(tower, selected_block.position);
     tower.material.opacity = 1;
