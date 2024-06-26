@@ -3,6 +3,7 @@ import { OrbitControls } from "three/examples/jsm/Addons.js";
 import { loadMap, map0_data } from "./map";
 // import { createInterSection, loopInterSection } from "./intersection";
 import { TowerManager } from "./tower";
+import { MinionManager } from "./minion";
 
 // LIST of TODOS
 // Do not let towers be added in the same place
@@ -20,7 +21,8 @@ let camera,
   clickableObjs = new Array(),
   cursor_cube,
   addedToScene = false,
-  towerMngr;
+  towerMngr,
+  minionMngr;
 
 // cursorValid = false,
 const scene = new THREE.Scene();
@@ -66,12 +68,16 @@ function init() {
   scene.add(directionalLight);
 
   // calling loading and init functions
-  loadMap(map0_data, scene, clickableObjs);
+  const path = loadMap(map0_data, scene, clickableObjs);
 
   cursor_cube = towerMngr.createTower();
-  scene.add(cursor_cube);
+  // scene.add(cursor_cube);
 
-  // createInterSection(scene, camera, renderer, controls);
+  minionMngr = new MinionManager(scene, path);
+  minionMngr.spawnMinion(new THREE.Vector3(path[0].x, path[0].y, path[0].z));
+  // Spawn minions every 2 seconds
+  // setInterval(() => {
+  // }, 2000);
 
   //loop
   render();
@@ -148,6 +154,8 @@ function render() {
 
   // controls.update();
   renderer.render(scene, camera);
+
+  minionMngr.updateMinions(delta);
 
   // loopInterSection();
 

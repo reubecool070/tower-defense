@@ -2,17 +2,17 @@ import * as THREE from "three";
 
 export const map0_data = {
   data: [
-    [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
     [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
     [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   ],
 };
 
@@ -20,8 +20,13 @@ export function loadMap(mapdata, scene, clickableObjs) {
   // getting width and height
   const size_Y = mapdata.data.length;
   const size_X = mapdata.data[0].length;
+  const path = [];
 
   // setting up basic mesh
+  const road_group = new THREE.Group();
+  const ground_group = new THREE.Group();
+  scene.add(road_group, ground_group);
+
   const material = new THREE.MeshLambertMaterial();
   const geometry = new THREE.BoxGeometry(2, 2, 2);
   const basic_cube = new THREE.Mesh(geometry, material);
@@ -48,7 +53,7 @@ export function loadMap(mapdata, scene, clickableObjs) {
             temp_block.position.set(pos_x, 0, pos_y);
             temp_block.name = `basic_cube_${x}-${y}`;
             // temp_block.material.wireframe = true;
-            scene.add(temp_block);
+            ground_group.add(temp_block);
             clickableObjs.push(temp_block);
           }
           break;
@@ -58,9 +63,10 @@ export function loadMap(mapdata, scene, clickableObjs) {
             const temp_block = road_cube.clone();
             temp_block.scale.y = 0.8;
             temp_block.position.set(pos_x, -0.2, pos_y);
+            path.push(new THREE.Vector3(pos_x, 2, pos_y));
             temp_block.name = `road_cube_${x}-${y}`;
             temp_block.material.opacity = 0.4;
-            scene.add(temp_block);
+            road_group.add(temp_block);
           }
           break;
 
@@ -69,4 +75,5 @@ export function loadMap(mapdata, scene, clickableObjs) {
       }
     }
   }
+  return path;
 }
