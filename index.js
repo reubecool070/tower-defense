@@ -24,8 +24,6 @@ let camera,
   towerMngr,
   minionMngr;
 
-let textMesh;
-let rndInt = 2000;
 let counter = 0;
 // cursorValid = false,
 const scene = new THREE.Scene();
@@ -82,6 +80,7 @@ function init() {
   // scene.add(cursor_cube);
 
   minionMngr = new MinionManager(scene, path);
+  minionMngr.createTexture();
 
   // setInterval(() => {
   //   minionMngr.spawnMinion(new THREE.Vector3(path[0].x, path[0].y, path[0].z));

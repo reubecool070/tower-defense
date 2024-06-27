@@ -31,14 +31,26 @@ export class MinionManager {
     this.scene = scene;
     this.path = path;
     this.group = new THREE.Group();
+    this.textureLoader = new THREE.TextureLoader();
+    this.minionSprite = undefined;
 
     this.scene.add(this.group);
   }
 
+  createTexture() {
+    console.log("called");
+    this.textureLoader.load("textures/minion.png", (texture) => {
+      texture.colorSpace = THREE.SRGBColorSpace;
+
+      const material = new THREE.SpriteMaterial({ map: texture });
+      this.minionSprite = new THREE.Sprite(material);
+      // this.minionSprite = texture;
+    });
+  }
+
   spawnMinion(position) {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0xf01159 });
-    const mesh = new THREE.Mesh(geometry, material);
+    if (!this.minionSprite) return;
+    const mesh = this.minionSprite.clone();
     mesh.name = `minion-${this.minions.length + 1}`;
     mesh.position.copy(position);
     const minion = new Minion(mesh);
@@ -48,16 +60,17 @@ export class MinionManager {
 
   updateMinions(deltaTime) {
     this.minions.forEach((minion) => {
+      console.log(minion.pathIndex, this.path.length);
       if (minion.pathIndex < this.path.length) {
         const targetPosition = this.path[minion.pathIndex];
         minion.moveTo(targetPosition, deltaTime);
-        // minion.position.copy(targetPosition);
         if (minion.mesh.position.distanceToSquared(targetPosition) < 0.1) {
           minion.pathIndex++;
         }
       } else {
-        this.scene.remove(minion.mesh);
+        this.group.remove(minion.mesh);
         this.minions.splice(this.minions.indexOf(minion), 1);
+        console.log("remove", this.scene);
       }
     });
   }
