@@ -38,7 +38,6 @@ export class MinionManager {
   }
 
   createTexture() {
-    console.log("called");
     this.textureLoader.load("textures/minion.png", (texture) => {
       texture.colorSpace = THREE.SRGBColorSpace;
 
@@ -60,7 +59,6 @@ export class MinionManager {
 
   updateMinions(deltaTime) {
     this.minions.forEach((minion) => {
-      console.log(minion.pathIndex, this.path.length);
       if (minion.pathIndex < this.path.length) {
         const targetPosition = this.path[minion.pathIndex];
         minion.moveTo(targetPosition, deltaTime);
@@ -70,7 +68,6 @@ export class MinionManager {
       } else {
         this.group.remove(minion.mesh);
         this.minions.splice(this.minions.indexOf(minion), 1);
-        console.log("remove", this.scene);
       }
     });
   }

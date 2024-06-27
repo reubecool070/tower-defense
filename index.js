@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { FontLoader, OrbitControls } from "three/examples/jsm/Addons.js";
 import { loadMap, map0_data } from "./map";
 // import { createInterSection, loopInterSection } from "./intersection";
-import { TowerManager } from "./tower";
+import { TowerManager } from "./cTower";
 import { MinionManager } from "./minion";
 
 // LIST of TODOS
