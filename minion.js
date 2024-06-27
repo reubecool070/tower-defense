@@ -4,17 +4,24 @@ class Minion {
   constructor(mesh) {
     this.mesh = mesh;
     this.pathIndex = 0;
+    this.speed = 2.0;
   }
 
   moveTo(targetPosition, deltaTime) {
-    // const direction = targetPosition
-    //   .clone()
-    //   .sub(this.mesh.position)
-    //   .normalize();
-    // const tangent = targetPosition.clone().normalize();
-    // this.mesh.position.add(direction.multiplyScalar(deltaTime * 2)); // Adjust speed as needed
-    this.mesh.position.copy(targetPosition); // Adjust speed as needed
-    // this.mesh.lookAt(targetPosition.clone().add(tangent));
+    const direction = targetPosition
+      .clone()
+      .sub(this.mesh.position)
+      .normalize();
+
+    this.mesh.position.add(direction.multiplyScalar(deltaTime * this.speed)); // Adjust speed as needed
+    // const tangent = targetPosition.clone();
+    // this.mesh.lookAt(targetPosition);
+    // this.mesh.position.copy(targetPosition); // Adjust speed as needed
+    //  const direction = targetPosition.clone().sub(this.mesh.position);
+    //     .normalize();
+    // const distance = direction.length();
+    // const moveDistance = Math.min(distance, this.speed * deltaTime);
+    // this.mesh.position.add(direction.multiplyScalar(moveDistance));
   }
 }
 

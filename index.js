@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/Addons.js";
+import { FontLoader, OrbitControls } from "three/examples/jsm/Addons.js";
 import { loadMap, map0_data } from "./map";
 // import { createInterSection, loopInterSection } from "./intersection";
 import { TowerManager } from "./tower";
@@ -24,8 +24,12 @@ let camera,
   towerMngr,
   minionMngr;
 
+let textMesh;
+let rndInt = 2000;
+let counter = 0;
 // cursorValid = false,
 const scene = new THREE.Scene();
+// const loader = new FontLoader();
 
 function init() {
   clock = new THREE.Clock();
@@ -55,9 +59,9 @@ function init() {
   // controls.enabled = false;
 
   // //event
-  document.addEventListener("mousedown", onMouseDown);
-  document.addEventListener("mouseup", onMouseUp);
-  document.addEventListener("mousemove", onMouseMove);
+  // document.addEventListener("mousedown", onMouseDown);
+  // document.addEventListener("mouseup", onMouseUp);
+  // document.addEventListener("mousemove", onMouseMove);
 
   //light
   const ambientLight = new THREE.AmbientLight(0xcccccc, 0.2);
@@ -67,17 +71,38 @@ function init() {
   directionalLight.position.set(-1, 0.9, 0.4);
   scene.add(directionalLight);
 
+  // loader.load("helvetiker_regular.typeface.json", function (font) {
+  // });
+  loadMap(map0_data, scene, clickableObjs);
+  const path = map0_data.path;
   // calling loading and init functions
-  const path = loadMap(map0_data, scene, clickableObjs);
+  // textMesh = font;
 
   cursor_cube = towerMngr.createTower();
   // scene.add(cursor_cube);
 
   minionMngr = new MinionManager(scene, path);
-  minionMngr.spawnMinion(new THREE.Vector3(path[0].x, path[0].y, path[0].z));
-  // Spawn minions every 2 seconds
+
   // setInterval(() => {
-  // }, 2000);
+  //   minionMngr.spawnMinion(new THREE.Vector3(path[0].x, path[0].y, path[0].z));
+  //   rndInt = randomIntFromInterval(500, 2000);
+  //   console.log(rndInt);
+  // }, rndInt);
+  function spawnMinionAtRandomInterval() {
+    if (counter < 10) {
+      counter++;
+      minionMngr.spawnMinion(
+        new THREE.Vector3(path[0].x, path[0].y, path[0].z)
+      );
+      const rndInt = randomIntFromInterval(100, 2000);
+      // console.log(rndInt);
+
+      // Call the function again after the random interval
+      setTimeout(spawnMinionAtRandomInterval, rndInt);
+    }
+  }
+  spawnMinionAtRandomInterval();
+  // Initial call to start the process
 
   //loop
   render();
@@ -141,6 +166,11 @@ function onMouseDown(event) {
   }
 }
 
+function randomIntFromInterval(min, max) {
+  // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 window.onresize = function () {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -155,6 +185,8 @@ function render() {
   // controls.update();
   renderer.render(scene, camera);
 
+  // if (textMesh) {
+  // }
   minionMngr.updateMinions(delta);
 
   // loopInterSection();
